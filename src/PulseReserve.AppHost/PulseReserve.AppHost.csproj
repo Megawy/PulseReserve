@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\PulseReserve.SharedKernel\PulseReserve.SharedKernel.csproj" />
+    <ProjectReference Include="..\Shared\PulseReserve.Infrastructure\PulseReserve.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Identity\PulseReserve.Modules.Identity\PulseReserve.Modules.Identity.csproj" />
+    <ProjectReference Include="..\Modules\Catalog\PulseReserve.Modules.Catalog\PulseReserve.Modules.Catalog.csproj" />
+    <ProjectReference Include="..\Modules\Reservation\PulseReserve.Modules.Reservation\PulseReserve.Modules.Reservation.csproj" />
+    <ProjectReference Include="..\Modules\Payments\PulseReserve.Modules.Payments\PulseReserve.Modules.Payments.csproj" />
+    <ProjectReference Include="..\Modules\Notifications\PulseReserve.Modules.Notifications\PulseReserve.Modules.Notifications.csproj" />
+  </ItemGroup>
+</Project>

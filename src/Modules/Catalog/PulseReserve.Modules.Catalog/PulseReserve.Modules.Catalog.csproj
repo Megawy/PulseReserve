@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\PulseReserve.SharedKernel\PulseReserve.SharedKernel.csproj" />
+    <ProjectReference Include="..\PulseReserve.Modules.Catalog.Contracts\PulseReserve.Modules.Catalog.Contracts.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\PulseReserve.SharedKernel\PulseReserve.SharedKernel.csproj" />
+  </ItemGroup>
+</Project>

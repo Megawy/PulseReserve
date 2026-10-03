@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PulseReserve.AppHost\PulseReserve.AppHost.csproj" />
+    <ProjectReference Include="..\..\src\Shared\PulseReserve.SharedKernel\PulseReserve.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\src\Shared\PulseReserve.Infrastructure\PulseReserve.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Identity\PulseReserve.Modules.Identity\PulseReserve.Modules.Identity.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Identity\PulseReserve.Modules.Identity.Contracts\PulseReserve.Modules.Identity.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Catalog\PulseReserve.Modules.Catalog\PulseReserve.Modules.Catalog.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Catalog\PulseReserve.Modules.Catalog.Contracts\PulseReserve.Modules.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Reservation\PulseReserve.Modules.Reservation\PulseReserve.Modules.Reservation.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Reservation\PulseReserve.Modules.Reservation.Contracts\PulseReserve.Modules.Reservation.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Payments\PulseReserve.Modules.Payments\PulseReserve.Modules.Payments.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Payments\PulseReserve.Modules.Payments.Contracts\PulseReserve.Modules.Payments.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Notifications\PulseReserve.Modules.Notifications\PulseReserve.Modules.Notifications.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Notifications\PulseReserve.Modules.Notifications.Contracts\PulseReserve.Modules.Notifications.Contracts.csproj" />
+  </ItemGroup>
+</Project>
