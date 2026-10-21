@@ -42,7 +42,7 @@ secrets.json
 Thumbs.db
 ehthumbs.db
 
-## Node / Frontend (Planned)
+## Node / Frontend
 node_modules/
 dist/
 .angular/
@@ -53,3 +53,4 @@ dist/
 *.snupkg
 project.lock.json
 project.assets.json
+!.env.example
