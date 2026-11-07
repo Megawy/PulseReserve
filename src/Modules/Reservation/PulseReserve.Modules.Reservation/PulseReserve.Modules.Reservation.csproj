@@ -3,4 +3,11 @@
     <ProjectReference Include="..\..\..\Shared\PulseReserve.SharedKernel\PulseReserve.SharedKernel.csproj" />
     <ProjectReference Include="..\PulseReserve.Modules.Reservation.Contracts\PulseReserve.Modules.Reservation.Contracts.csproj" />
   </ItemGroup>
+
+  <!-- Module-owned persistence (ADR-008): the Reservation schema, migrations and SQL live inside this module. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
 </Project>

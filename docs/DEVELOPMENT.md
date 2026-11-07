@@ -32,7 +32,7 @@ email `admin@pulsereserve.test`).
 | Restart one service | `scripts/dev.ps1 restart api` |
 | Rebuild image (Dockerfile / SDK change) | `scripts/dev.ps1 rebuild api` |
 | Apply new migrations | `scripts/dev.ps1 migrate` (restarts the API, which applies pending ones) |
-| Backend tests | `scripts/dev.ps1 test-backend` (integration tests start their own disposable PostgreSQL via Testcontainers) |
+| Backend tests | `scripts/dev.ps1 test-backend` (integration tests start their own disposable PostgreSQL via Testcontainers; safeguards, discovery and the exact commands: [27](architecture/27-postgresql-integration-verification.md)) |
 | Frontend lint + tests + build | `scripts/dev.ps1 test-frontend` |
 | SQL shell | `scripts/dev.ps1 psql` |
 
@@ -58,7 +58,15 @@ data volume persists across restarts.
 
 `.env` (git-ignored; template `.env.example`) holds the DB password, host ports and the dev admin password/user id. Change `WEB_PORT`/`API_PORT`
 there if they clash with other projects. The payment simulator and development notification adapter are enabled only in this dev stack and the app
-refuses to start with them outside Development/Testing.
+refuses to start with them outside Development/Testing. The simulator and a real payment provider are alternatives: to try Stripe or Paymob in
+the dev stack set `SIMULATOR_ENABLED=false` together with `STRIPE_ENABLED`/`PAYMOB_ENABLED=true` in `.env` (the API refuses to start with both; running
+without Docker, set `Payments__Simulator__Enabled=false` to override `appsettings.Development.json`). Outside Docker the API also needs no
+`Security:ForwardedHeaders` setting in Development/Testing; every other environment must set `Security:ForwardedHeaders:Mode` (see
+`docs/architecture/23-proxy-rate-limiting-and-simulator-isolation.md`).
+
+## Real-time updates (SignalR)
+
+The API serves a SignalR hub at `/hubs/live` (seat availability, my reservation, my order, administrator areas; see `docs/architecture/28-real-time-architecture.md`). The Angular dev server proxies `/hubs` to the API with WebSocket upgrade (`frontend/pulsereserve-web/proxy.conf.mjs`), so the browser still talks to a single origin. Settings (all optional): `Live__Enabled`, `Live__ChangeFeed__Enabled`, `Reservation__HoldExpiry__Enabled`, `Live__AllowedOrigins`, see the configuration table in doc 28. The change feed uses one extra PostgreSQL connection (`LISTEN`, application name `pulsereserve-live`). Rebuild the API image occasionally (`docker compose -f compose.dev.yaml build api`) so the SDK/runtime inside it is the latest 10.0.x patch (the hub never enables stateful reconnect, but ASP.NET Core 10.0.13 or later fixes GHSA-334f-vvp4-7g6p).
 
 ## Troubleshooting
 

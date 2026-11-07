@@ -1,0 +1,166 @@
+@use '../../../../styles/mixins' as *;
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--foreground-muted);
+  font-size: var(--font-size-sm);
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+}
+
+.swatch {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--seat-available-border);
+  border-radius: var(--radius-sm) var(--radius-sm) 0.2rem 0.2rem;
+  background: var(--seat-available);
+  font-size: 0.7rem;
+  font-weight: var(--weight-bold);
+}
+
+.stage {
+  margin: var(--space-4) auto var(--space-5);
+  padding: var(--space-1) var(--space-6);
+  width: min(100%, 22rem);
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  background: linear-gradient(var(--primary-soft), transparent);
+  border-top: 3px solid var(--primary);
+  color: var(--primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.2em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.map {
+  overflow-x: auto; // wide rows scroll inside the card; the page itself never scrolls sideways
+  padding-bottom: var(--space-2);
+  -webkit-overflow-scrolling: touch;
+}
+
+.section {
+  width: max-content;
+  min-width: 100%;
+  margin: 0 auto;
+
+  h3 {
+    margin: var(--space-4) 0 var(--space-2);
+    color: var(--foreground-muted);
+    font-size: var(--font-size-sm);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
+  width: max-content;
+  min-width: 100%;
+}
+
+.row-label {
+  flex: none;
+  width: 1.75rem;
+  color: var(--foreground-subtle);
+  font-size: var(--font-size-xs);
+  font-weight: var(--weight-bold);
+  text-align: center;
+}
+
+.seat {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem; // 44px touch target
+  height: 2.75rem;
+  padding: 0;
+  border: 2px solid var(--seat-available-border);
+  border-radius: var(--radius-md) var(--radius-md) 0.3rem 0.3rem;
+  background: var(--seat-available);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: var(--weight-semibold);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease;
+
+  &:hover:not([aria-disabled='true']) {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+}
+
+.seat-icon {
+  min-height: 0.75rem;
+  font-size: 0.7rem;
+}
+
+.seat.selected,
+.swatch.selected {
+  border-color: var(--seat-selected);
+  background: var(--seat-selected);
+  color: var(--seat-selected-foreground);
+}
+
+.seat.mine,
+.swatch.mine {
+  border-color: var(--seat-mine-border);
+  border-style: double;
+  border-width: 4px;
+  background: var(--seat-mine);
+  color: var(--foreground);
+}
+
+.seat.held,
+.swatch.held {
+  border-style: dashed;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--seat-held),
+    var(--seat-held) 4px,
+    var(--border) 4px,
+    var(--border) 8px
+  );
+  color: var(--foreground-muted);
+}
+
+.seat.unavailable,
+.swatch.unavailable {
+  border-style: dotted;
+  border-color: var(--border);
+  background: var(--seat-unavailable);
+  color: var(--foreground-subtle);
+}
+
+.seat[aria-disabled='true'] {
+  cursor: not-allowed;
+}

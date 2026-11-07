@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  build-and-test:
+    name: Build & test
+    # ubuntu-latest ships a Docker engine, which the Testcontainers-based integration tests require.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          # SDK pinned by global.json; the .NET 10 SDK includes the runtime for the net10.0 projects.
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore PulseReserve.sln
+
+      - name: Build
+        run: dotnet build PulseReserve.sln --configuration Release --no-restore
+
+      - name: Unit tests
+        run: dotnet test tests/PulseReserve.UnitTests/PulseReserve.UnitTests.csproj --configuration Release --no-build
+
+      - name: Architecture tests
+        run: dotnet test tests/PulseReserve.ArchitectureTests/PulseReserve.ArchitectureTests.csproj --configuration Release --no-build
+
+      - name: Integration tests (disposable PostgreSQL via Testcontainers)
+        run: dotnet test tests/PulseReserve.IntegrationTests/PulseReserve.IntegrationTests.csproj --configuration Release --no-build
+
+  frontend:
+    name: Frontend & Docker config
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend/pulsereserve-web
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/pulsereserve-web/package-lock.json
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test:ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Validate development Compose file
+        working-directory: .
+        run: POSTGRES_PASSWORD=ci-placeholder docker compose -f compose.dev.yaml config --quiet

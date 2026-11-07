@@ -1,0 +1,7 @@
+// PulseReserve global styles: tokens, base, controls, components, animation. Component stylesheets only add
+// layout that is specific to one feature and use these tokens exclusively.
+@use 'styles/tokens';
+@use 'styles/base';
+@use 'styles/controls';
+@use 'styles/components';
+@use 'styles/animations';

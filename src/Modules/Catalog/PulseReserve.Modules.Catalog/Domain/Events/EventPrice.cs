@@ -12,6 +12,13 @@ public sealed class EventPrice : ValueObject
         Price = price;
     }
 
+    // EF Core materialization constructor
+    private EventPrice()
+    {
+        PriceTierId = PriceTierId.Empty;
+        Price = null!;
+    }
+
     public PriceTierId PriceTierId { get; }
     public Money Price { get; }
 

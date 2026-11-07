@@ -3,4 +3,12 @@
     <ProjectReference Include="..\..\..\Shared\PulseReserve.SharedKernel\PulseReserve.SharedKernel.csproj" />
     <ProjectReference Include="..\PulseReserve.Modules.Identity.Contracts\PulseReserve.Modules.Identity.Contracts.csproj" />
   </ItemGroup>
+
+  <!-- Module-owned persistence (ADR-008): the identity schema and its migrations live inside this module. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" />
+  </ItemGroup>
 </Project>

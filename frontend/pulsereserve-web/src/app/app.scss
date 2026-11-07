@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+
+  &:focus {
+    outline: none; // programmatic focus target only; not a tab stop
+  }
+}

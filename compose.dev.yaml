@@ -33,8 +33,29 @@ services:
       Logging__LogLevel__Default: Information
       Database__MigrateOnStartup: "true"
       Identity__AdminUserIds: ${ADMIN_USER_IDS:-}
-      Payments__Simulator__Enabled: "true"
+      # The simulator and a real provider are alternatives: the API refuses to start with both. Set SIMULATOR_ENABLED=false in .env
+      # when you enable Stripe or Paymob below (see .env.example).
+      Payments__Simulator__Enabled: ${SIMULATOR_ENABLED:-true}
       Notifications__DevAdapter__Enabled: "true"
+      # Real-time updates (SignalR hub /hubs/live) and the proactive hold-expiry worker; see docs/architecture/28-real-time-architecture.md.
+      Live__Enabled: ${LIVE_ENABLED:-true}
+      Reservation__HoldExpiry__Enabled: ${HOLD_EXPIRY_ENABLED:-true}
+      # Real providers are OFF unless enabled in .env (see .env.example); by default the simulator is used.
+      Payments__Stripe__Enabled: ${STRIPE_ENABLED:-false}
+      Payments__Stripe__Mode: ${STRIPE_MODE:-Test}
+      Payments__Stripe__SecretKey: ${STRIPE_SECRET_KEY:-}
+      Payments__Stripe__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
+      Payments__Stripe__AllowedCurrencies: ${STRIPE_ALLOWED_CURRENCIES:-}
+      Payments__Stripe__ReturnBaseUrl: ${STRIPE_RETURN_BASE_URL:-http://localhost:4200}
+      Payments__Paymob__Enabled: ${PAYMOB_ENABLED:-false}
+      Payments__Paymob__Mode: ${PAYMOB_MODE:-Test}
+      Payments__Paymob__SecretKey: ${PAYMOB_SECRET_KEY:-}
+      Payments__Paymob__PublicKey: ${PAYMOB_PUBLIC_KEY:-}
+      Payments__Paymob__HmacSecret: ${PAYMOB_HMAC_SECRET:-}
+      Payments__Paymob__IntegrationIds: ${PAYMOB_INTEGRATION_IDS:-}
+      Payments__Paymob__AllowedCurrencies: ${PAYMOB_ALLOWED_CURRENCIES:-EGP}
+      Payments__Paymob__ReturnBaseUrl: ${PAYMOB_RETURN_BASE_URL:-http://localhost:4200}
+      Payments__Paymob__PublicApiBaseUrl: ${PAYMOB_PUBLIC_API_BASE_URL:-}
     volumes:
       - ./src:/workspace/src
       - ./Directory.Build.props:/workspace/Directory.Build.props:ro

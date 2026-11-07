@@ -1,0 +1,17 @@
+# Keeps images small and keeps secrets and local state out of every build context (development and production images alike).
+.git
+.github
+.env
+.env.*
+!.env.example
+**/bin
+**/obj
+**/node_modules
+**/.angular
+**/dist
+**/TestResults
+frontend/pulsereserve-web/coverage
+tests
+docs
+*.md
+!frontend/pulsereserve-web/README.md

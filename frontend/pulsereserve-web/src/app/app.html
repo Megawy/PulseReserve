@@ -1,0 +1,141 @@
+<a class="skip-link" href="#main-content" (click)="skipToMain($event)">Skip to main content</a>
+
+<header class="topbar">
+  <div class="container topbar__inner">
+    <a class="brand" routerLink="/" aria-label="PulseReserve home">
+      <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <rect width="32" height="32" rx="9" fill="var(--primary)" />
+        <path
+          d="M5 17h5l3-8 5 15 3-9 2 2h4"
+          fill="none"
+          stroke="var(--primary-foreground)"
+          stroke-width="2.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <span>Pulse<em>Reserve</em></span>
+    </a>
+
+    <nav class="topbar__nav" aria-label="Primary">
+      <a
+        class="nav-link"
+        routerLink="/"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        [routerLinkActiveOptions]="{ exact: true }"
+        >Events</a
+      >
+      @if (auth.isAuthenticated()) {
+        <a
+          class="nav-link"
+          routerLink="/account/orders"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          >My orders</a
+        >
+      }
+      @if (auth.isAdmin()) {
+        <a
+          class="nav-link"
+          routerLink="/admin/payments"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          >Operations</a
+        >
+      }
+    </nav>
+
+    <div class="topbar__actions">
+      @if (auth.user(); as user) {
+        <span class="user-chip" [title]="user.email">
+          <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+          <span
+            >{{ user.displayName }}
+            @if (auth.isAdmin()) {
+              <strong>(admin)</strong>
+            }
+          </span>
+        </span>
+        <button type="button" class="btn btn--secondary btn--sm" (click)="signOut()">
+          Sign out
+        </button>
+      } @else {
+        <a class="btn btn--ghost btn--sm" routerLink="/login">Sign in</a>
+        <a class="btn btn--primary btn--sm" routerLink="/register">Create account</a>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="btn btn--secondary btn--sm topbar__toggle"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="mobile-menu"
+      (click)="menuOpen.set(!menuOpen())"
+    >
+      {{ menuOpen() ? 'Close' : 'Menu' }}
+    </button>
+  </div>
+
+  @if (menuOpen()) {
+    <nav class="drawer" id="mobile-menu" aria-label="Mobile">
+      <a
+        class="nav-link"
+        routerLink="/"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        [routerLinkActiveOptions]="{ exact: true }"
+        >Events</a
+      >
+      @if (auth.isAuthenticated()) {
+        <a
+          class="nav-link"
+          routerLink="/account/orders"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          >My orders</a
+        >
+      }
+      @if (auth.isAdmin()) {
+        <a
+          class="nav-link"
+          routerLink="/admin/payments"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          >Operations</a
+        >
+      }
+      <div class="drawer__section">
+        @if (auth.user(); as user) {
+          <p class="user-chip">
+            <span class="avatar" aria-hidden="true">{{ initial() }}</span
+            ><span>{{ user.displayName }}</span>
+          </p>
+          <button type="button" class="btn btn--secondary btn--block" (click)="signOut()">
+            Sign out
+          </button>
+        } @else {
+          <div class="stack">
+            <a class="btn btn--primary btn--block" routerLink="/register">Create account</a>
+            <a class="btn btn--secondary btn--block" routerLink="/login">Sign in</a>
+          </div>
+        }
+      </div>
+    </nav>
+  }
+</header>
+
+<main id="main-content" #main tabindex="-1">
+  <router-outlet />
+</main>
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <span>© PulseReserve. Seat holds are time-limited.</span>
+    @if (devBuild) {
+      <span>Development build: use the payment simulator or provider test mode only.</span>
+    }
+  </div>
+</footer>
+
+<app-toast-host />

@@ -1,0 +1,18 @@
+// Breakpoints and media mixins. No CSS output, so importing this never bloats a component stylesheet.
+// Breakpoints (use via the `up`/`down` mixins; CSS custom properties cannot be used in media queries).
+$bp-sm: 40rem; // 640px  large phones
+$bp-md: 48rem; // 768px  tablets
+$bp-lg: 64rem; // 1024px laptops
+$bp-xl: 80rem; // 1280px desktops
+
+@mixin up($bp) {
+  @media (min-width: $bp) {
+    @content;
+  }
+}
+
+@mixin down($bp) {
+  @media (max-width: calc(#{$bp} - 0.02rem)) {
+    @content;
+  }
+}

@@ -1,0 +1,171 @@
+/*
+  PulseReserve design tokens.
+
+  The architecture is shared with the Mailora/Platinumail design system (same semantic token names, same hand-written
+  SCSS approach, no UI/animation/icon library: Mailora's package.json has none), so a component written for one reads
+  naturally in the other. Only the palette is PulseReserve's: an indigo primary with a warm "pulse" accent.
+  Every colour in the application comes from these tokens; components never hardcode one.
+*/
+
+@mixin light-palette {
+  color-scheme: light;
+
+  --background: #f7f7fc;
+  --background-subtle: #eeeef8;
+  --foreground: #14142b;
+  --foreground-muted: #4b4b6b;
+  --foreground-subtle: #6b6b8a;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-muted: #f1f1fa;
+  --surface-hover: #e9e9f7;
+  --primary: #4338ca;
+  --primary-hover: #3730a3;
+  --primary-active: #312e81;
+  --primary-soft: #e8e7fb;
+  --primary-foreground: #ffffff;
+  --accent: #d6336c;
+  --accent-soft: #fde7ef;
+  --accent-foreground: #ffffff;
+  --border: #d9d9ec;
+  --border-muted: #e4e4f2;
+  --border-strong: #b4b4d2;
+  --input: #ffffff;
+  --input-border: #c3c3df;
+  --focus-ring: #4338ca;
+  --success: #15803d;
+  --success-soft: #dcf5e4;
+  --warning: #a16207;
+  --warning-soft: #fdf1cf;
+  --danger: #c0262d;
+  --danger-soft: #fde6e6;
+  --info: #0c6aa6;
+  --info-soft: #dff0fb;
+  --overlay: rgb(20 20 43 / 0.55);
+  --skeleton: #e6e6f4;
+  --skeleton-shine: rgb(255 255 255 / 0.7);
+  --hero-from: #e8e7fb;
+  --hero-to: #fde7ef;
+
+  // Seat states (never the only cue: each also has an icon and a pattern)
+  --seat-available: var(--surface);
+  --seat-available-border: var(--border-strong);
+  --seat-selected: var(--primary);
+  --seat-selected-foreground: var(--primary-foreground);
+  --seat-mine: var(--accent-soft);
+  --seat-mine-border: var(--accent);
+  --seat-held: var(--surface-hover);
+  --seat-unavailable: var(--surface-muted);
+}
+
+@mixin dark-palette {
+  color-scheme: dark;
+
+  --background: #0c0c1a;
+  --background-subtle: #121226;
+  --foreground: #ececfa;
+  --foreground-muted: #a9a9c9;
+  --foreground-subtle: #8383a6;
+  --surface: #15152b;
+  --surface-raised: #1b1b36;
+  --surface-muted: #101024;
+  --surface-hover: #24244a;
+  --primary: #8f95ff;
+  --primary-hover: #a5aaff;
+  --primary-active: #7b82f0;
+  --primary-soft: #26265a;
+  --primary-foreground: #0c0c1a;
+  --accent: #ff7aa6;
+  --accent-soft: #3a1a2b;
+  --accent-foreground: #0c0c1a;
+  --border: #2c2c52;
+  --border-muted: #222244;
+  --border-strong: #46467a;
+  --input: #15152b;
+  --input-border: #3a3a68;
+  --focus-ring: #a5aaff;
+  --success: #6fdc8c;
+  --success-soft: #12301d;
+  --warning: #f0c14b;
+  --warning-soft: #33290d;
+  --danger: #ff8d92;
+  --danger-soft: #3a1618;
+  --info: #66c2ff;
+  --info-soft: #0f2a3d;
+  --overlay: rgb(0 0 0 / 0.65);
+  --skeleton: #1e1e3c;
+  --skeleton-shine: rgb(255 255 255 / 0.07);
+  --hero-from: #1c1c44;
+  --hero-to: #2c1530;
+}
+
+:root {
+  @include light-palette;
+
+  // Typography
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+  --font-size-3xl: 2.25rem;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+
+  // Spacing (4px base)
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  // Radii and shadows
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px rgb(20 20 43 / 0.06);
+  --shadow-md: 0 2px 6px rgb(20 20 43 / 0.07), 0 8px 18px -6px rgb(20 20 43 / 0.1);
+  --shadow-lg: 0 6px 12px -4px rgb(20 20 43 / 0.1), 0 18px 36px -10px rgb(20 20 43 / 0.16);
+
+  // Layout
+  --control-height: 2.75rem;
+  --content-max: 72rem;
+  --content-narrow: 28rem;
+  --header-height: 4rem;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root[data-theme='dark'] {
+  @include dark-palette;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    @include dark-palette;
+  }
+}
+
+// Shadows read poorly on dark surfaces: lean on borders there.
+:root[data-theme='dark'],
+:root:not([data-theme='light']) {
+  @media (prefers-color-scheme: dark) {
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 4px 14px rgb(0 0 0 / 0.45);
+    --shadow-lg: 0 14px 34px rgb(0 0 0 / 0.55);
+  }
+}

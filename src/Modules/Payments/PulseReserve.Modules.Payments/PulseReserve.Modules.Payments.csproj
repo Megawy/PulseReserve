@@ -3,4 +3,12 @@
     <ProjectReference Include="..\..\..\Shared\PulseReserve.SharedKernel\PulseReserve.SharedKernel.csproj" />
     <ProjectReference Include="..\PulseReserve.Modules.Payments.Contracts\PulseReserve.Modules.Payments.Contracts.csproj" />
   </ItemGroup>
+
+  <!-- Module-owned persistence (ADR-008): the payments schema (orders, order items, payment attempts) lives here. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
 </Project>

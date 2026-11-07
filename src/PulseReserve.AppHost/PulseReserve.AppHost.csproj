@@ -8,4 +8,12 @@
     <ProjectReference Include="..\Modules\Payments\PulseReserve.Modules.Payments\PulseReserve.Modules.Payments.csproj" />
     <ProjectReference Include="..\Modules\Notifications\PulseReserve.Modules.Notifications\PulseReserve.Modules.Notifications.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+  </ItemGroup>
 </Project>

@@ -12,6 +12,13 @@ public sealed class Venue : AggregateRoot<VenueId>
         Address = address;
     }
 
+    // EF Core materialization constructor
+    private Venue() : base(VenueId.Empty)
+    {
+        Name = string.Empty;
+        Address = null!;
+    }
+
     public string Name { get; private set; }
     public Address Address { get; private set; }
 

@@ -21,6 +21,16 @@ public sealed class Seat : Entity<SeatId>
         PriceTierId = priceTierId;
     }
 
+    // EF Core materialization constructor
+    private Seat() : base(SeatId.Empty)
+    {
+        RowId = RowId.Empty;
+        SectionId = SectionId.Empty;
+        Label = string.Empty;
+        Coordinate = null!;
+        PriceTierId = PriceTierId.Empty;
+    }
+
     public RowId RowId { get; }
     public SectionId SectionId { get; }
     public string Label { get; }

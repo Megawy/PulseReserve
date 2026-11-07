@@ -1,0 +1,337 @@
+<div class="container page">
+  <a class="breadcrumb" routerLink="/">← All events</a>
+
+  @if (error(); as err) {
+    <app-error-state
+      [heading]="err.isNotFound ? 'Event not found' : 'We could not load this event'"
+      [message]="err.message"
+      [retryable]="err.retryable"
+      (retry)="load()"
+    />
+  } @else if (ready(); as page) {
+    <header class="hero event-hero">
+      <div class="cluster">
+        <app-status-badge kind="event" [value]="page.event.status" />
+      </div>
+      <h1>{{ page.event.name }}</h1>
+      <ul class="event-hero__facts">
+        @if (dateRange(); as when) {
+          <li>
+            <span aria-hidden="true">📅</span>
+            <time [attr.datetime]="page.event.scheduledStartUtc">{{ when }}</time>
+          </li>
+        }
+        @if (page.venue; as venue) {
+          <li>
+            <span aria-hidden="true">📍</span>
+            <span>{{ venue.name }} · {{ venue.street }}, {{ venue.city }}</span>
+          </li>
+        }
+      </ul>
+      <p class="event-hero__desc">{{ page.event.description }}</p>
+      @if (tiers().length > 0) {
+        <ul class="tiers" aria-label="Ticket prices">
+          @for (tier of tiers(); track tier.id) {
+            <li>
+              <span class="tiers__name">{{ tier.name }}</span>
+              <span class="price">{{ tier.price }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </header>
+
+    @if (!salesOpen()) {
+      <app-alert
+        tone="info"
+        [heading]="
+          page.event.status === 'Published'
+            ? 'Sales have not opened yet'
+            : 'Seats cannot be reserved'
+        "
+      >
+        @if (page.event.status === 'Published') {
+          Ticket sales for this event have not opened. Check back soon.
+        } @else {
+          This event is not currently on sale.
+        }
+      </app-alert>
+    } @else if (page.layoutError) {
+      <app-error-state
+        heading="We could not load the seating layout"
+        [message]="page.layoutError.message"
+        [retryable]="page.layoutError.retryable"
+        (retry)="load()"
+      />
+    } @else if (!page.layout) {
+      <app-alert tone="warning" heading="No seating layout">
+        This event has no seating layout, so seats cannot be selected.
+      </app-alert>
+    } @else {
+      <ol class="stepper" aria-label="Booking progress">
+        @for (s of steps(); track s.label) {
+          <li [attr.aria-current]="s.current ? 'step' : null" [class.is-done]="s.done">
+            {{ s.label }}
+          </li>
+        }
+      </ol>
+
+      <div class="booking">
+        <section class="card map-card" aria-labelledby="seats-heading">
+          <div class="card__body stack">
+            <div class="map-card__head">
+              <div>
+                <h2 id="seats-heading">Choose your seats</h2>
+                <p class="subtle">Select up to {{ flow.maxSeats }} available seats.</p>
+                <app-live-indicator />
+              </div>
+              <button
+                type="button"
+                class="btn btn--secondary btn--sm"
+                (click)="flow.refreshAvailability()"
+                [class.is-loading]="availabilityLoading()"
+                [disabled]="availabilityLoading()"
+              >
+                Refresh availability
+              </button>
+            </div>
+
+            @if (availabilityLoading() && flow.seatsById().size === 0) {
+              <div
+                class="skeleton skeleton--block"
+                role="status"
+                aria-label="Loading seat availability"
+              ></div>
+            } @else if (availabilityError(); as aerr) {
+              <app-error-state
+                heading="We could not load seat availability"
+                [message]="aerr.message"
+                [retryable]="true"
+                (retry)="flow.refreshAvailability()"
+              />
+            } @else {
+              <app-seat-map
+                [layout]="page.layout"
+                [availability]="flow.seatsById()"
+                [selected]="flow.selected()"
+                [mine]="flow.mySeatIds()"
+                [locked]="flow.locked()"
+                (seatToggle)="flow.toggleSeat($event)"
+              />
+            }
+          </div>
+        </section>
+
+        <aside class="card summary" aria-labelledby="summary-heading">
+          <div class="card__body stack">
+            <h2 id="summary-heading">Your booking</h2>
+
+            @if (!flow.canBook()) {
+              <app-alert
+                tone="info"
+                [heading]="
+                  flow.sessionExpired() ? 'Your session has expired' : 'Sign in to hold seats'
+                "
+              >
+                Seats are held for your account.
+                <a [routerLink]="['/login']" [queryParams]="{ returnUrl: returnUrl() }">Sign in</a>
+                or
+                <a [routerLink]="['/register']" [queryParams]="{ returnUrl: returnUrl() }"
+                  >create an account</a
+                >
+                to continue.
+              </app-alert>
+            }
+
+            <div aria-live="polite">
+              @if (flow.notice(); as n) {
+                @if (flow.phase() !== 'checkout' && flow.phase() !== 'confirmed') {
+                  <app-alert [tone]="n.tone">{{ n.text }}</app-alert>
+                }
+              }
+            </div>
+
+            @if (flow.reservation(); as r) {
+              <section class="stack" aria-labelledby="res-heading">
+                <div class="summary__row">
+                  <h3 id="res-heading">Reservation</h3>
+                  <app-status-badge
+                    kind="reservation"
+                    [value]="flow.phase() === 'expired' ? 'Expired' : r.status"
+                  />
+                </div>
+
+                @if (flow.phase() === 'held') {
+                  <div class="countdown-card">
+                    <span class="subtle">Time left to check out</span>
+                    <span class="countdown" role="timer" aria-live="off">{{
+                      remainingText() ?? '…'
+                    }}</span>
+                  </div>
+                }
+
+                <dl class="facts">
+                  <dt>Reference</dt>
+                  <dd class="mono">{{ shortId(r.reservationId) }}</dd>
+                  <dt>Expires</dt>
+                  <dd>
+                    @if (validDate(r.expiresAtUtc)) {
+                      <time [attr.datetime]="r.expiresAtUtc">{{ expiryTime(r.expiresAtUtc) }}</time>
+                    } @else {
+                      Unknown (unreadable timestamp)
+                    }
+                  </dd>
+                </dl>
+
+                @if (flow.phase() !== 'checkout' && flow.phase() !== 'confirmed') {
+                  <ul class="line-list">
+                    @for (seat of reservationSeats(); track seat.id) {
+                      <li>
+                        <span>{{ seat.name }}</span
+                        ><span class="price">{{ seat.price }}</span>
+                      </li>
+                    }
+                    <li class="line-list__total">
+                      <span>Total</span
+                      ><span class="price price--total">{{ reservationTotal(r) }}</span>
+                    </li>
+                  </ul>
+                }
+
+                @if (flow.phase() === 'held') {
+                  <div class="stack">
+                    <button
+                      type="button"
+                      class="btn btn--primary btn--block"
+                      [class.is-loading]="checkout.busy() === 'creating'"
+                      [disabled]="checkout.isBusy()"
+                      [attr.aria-busy]="checkout.busy() === 'creating'"
+                      (click)="checkout.createOrder(r.reservationId)"
+                    >
+                      Proceed to checkout
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn--danger btn--block"
+                      [class.is-loading]="flow.releasing()"
+                      [disabled]="flow.releasing() || checkout.isBusy()"
+                      (click)="confirmingRelease.set(true)"
+                    >
+                      Release hold
+                    </button>
+                    @if (checkout.notice(); as n) {
+                      <app-alert [tone]="n.tone">{{ n.text }}</app-alert>
+                    }
+                  </div>
+                } @else if (flow.phase() === 'checkout' || flow.phase() === 'confirmed') {
+                  <app-checkout-panel
+                    [reservationId]="r.reservationId"
+                    [seatNames]="seatNames()"
+                    [remaining]="remainingText()"
+                  />
+                  @if (flow.phase() === 'confirmed') {
+                    <div class="stack">
+                      <a class="btn btn--secondary btn--block" routerLink="/account/orders"
+                        >View my orders</a
+                      >
+                      <button
+                        type="button"
+                        class="btn btn--ghost btn--block"
+                        (click)="flow.dismissReservation()"
+                      >
+                        Book more seats
+                      </button>
+                    </div>
+                  }
+                } @else if (flow.phase() === 'unverifiable') {
+                  <button
+                    type="button"
+                    class="btn btn--secondary btn--block"
+                    (click)="flow.recheckReservation()"
+                  >
+                    Check reservation status
+                  </button>
+                } @else {
+                  <button
+                    type="button"
+                    class="btn btn--secondary btn--block"
+                    (click)="flow.dismissReservation()"
+                  >
+                    Start a new selection
+                  </button>
+                }
+              </section>
+            }
+
+            @if (
+              flow.phase() === 'none' || flow.phase() === 'expired' || flow.phase() === 'released'
+            ) {
+              <div class="stack">
+                <div class="summary__row">
+                  <span class="muted">Selected seats</span>
+                  <span class="num"
+                    ><strong>{{ flow.selected().size }}</strong> / {{ flow.maxSeats }}</span
+                  >
+                </div>
+                @if (selectedSeats().length > 0) {
+                  <ul class="line-list">
+                    @for (seat of selectedSeats(); track seat.id) {
+                      <li>
+                        <span>{{ seat.name }}</span>
+                        @if (seat.price) {
+                          <span class="price">{{ seat.price }}</span>
+                        }
+                      </li>
+                    }
+                    @if (selectionTotalText(); as total) {
+                      <li class="line-list__total">
+                        <span>Total</span><span class="price price--total">{{ total }}</span>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="muted summary__hint">Pick seats on the map to see your total.</p>
+                }
+                <button
+                  type="button"
+                  class="btn btn--primary btn--block"
+                  [class.is-loading]="flow.holding()"
+                  [disabled]="!flow.canHold"
+                  [attr.aria-busy]="flow.holding()"
+                  (click)="flow.hold()"
+                >
+                  {{ flow.retryPending() ? 'Retry hold request' : 'Hold selected seats' }}
+                </button>
+                @if (flow.selected().size > 0 && !flow.holding()) {
+                  <button
+                    type="button"
+                    class="btn btn--ghost btn--block"
+                    (click)="flow.clearSelection()"
+                  >
+                    Clear selection
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </aside>
+      </div>
+
+      <app-confirm-dialog
+        [open]="confirmingRelease()"
+        heading="Release these seats?"
+        message="Your hold will end and the seats become available to other customers immediately."
+        confirmLabel="Release seats"
+        cancelLabel="Keep my hold"
+        (confirmed)="confirmRelease()"
+        (cancelled)="confirmingRelease.set(false)"
+      />
+    }
+  } @else {
+    <p class="visually-hidden" role="status">Loading event…</p>
+    <div class="stack" aria-hidden="true">
+      <span class="skeleton skeleton--block"></span>
+      <span class="skeleton skeleton--block"></span>
+    </div>
+  }
+</div>

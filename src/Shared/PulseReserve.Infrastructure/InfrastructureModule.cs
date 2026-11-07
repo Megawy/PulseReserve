@@ -6,4 +6,9 @@ namespace PulseReserve.Infrastructure;
 public static class InfrastructureModule
 {
     public static string Name => "Infrastructure";
+
+    /// <summary>
+    /// Compile-time anchor verifying that Infrastructure references Catalog for persistence mappings.
+    /// </summary>
+    public static readonly Type CatalogAnchor = typeof(PulseReserve.Modules.Catalog.CatalogModule);
 }

@@ -5,9 +5,19 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\PulseReserve.AppHost\PulseReserve.AppHost.csproj" />
+    <ProjectReference Include="..\..\src\Shared\PulseReserve.Infrastructure\PulseReserve.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Catalog\PulseReserve.Modules.Catalog\PulseReserve.Modules.Catalog.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Catalog\PulseReserve.Modules.Catalog.Contracts\PulseReserve.Modules.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Identity\PulseReserve.Modules.Identity\PulseReserve.Modules.Identity.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Reservation\PulseReserve.Modules.Reservation\PulseReserve.Modules.Reservation.csproj" />
+    <ProjectReference Include="..\..\src\Shared\PulseReserve.SharedKernel\PulseReserve.SharedKernel.csproj" />
   </ItemGroup>
 </Project>

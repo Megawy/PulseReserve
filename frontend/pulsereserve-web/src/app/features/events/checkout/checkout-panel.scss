@@ -1,0 +1,73 @@
+.sim-controls {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+
+  legend {
+    padding: 0 var(--space-1);
+    color: var(--foreground-muted);
+    font-size: var(--font-size-xs);
+    font-weight: var(--weight-semibold);
+  }
+}
+
+.tickets__refresh {
+  justify-self: start;
+}
+
+.methods {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: var(--space-2);
+    padding: 0;
+    font-size: var(--font-size-sm);
+    font-weight: var(--weight-semibold);
+  }
+}
+
+.method {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--border-strong);
+  }
+
+  &.is-selected {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+  }
+
+  &:has(input:focus-visible) {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  input {
+    flex: none;
+    accent-color: var(--primary);
+  }
+}
+
+.method__name {
+  min-width: 0;
+  font-weight: var(--weight-medium);
+  overflow-wrap: anywhere;
+}

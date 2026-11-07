@@ -1,0 +1,114 @@
+<div class="container page">
+  <header class="page-header">
+    <div>
+      <p class="page-header__eyebrow">Live events</p>
+      <h1>Find your next night out</h1>
+      <p class="page-header__lead">
+        Pick a show, choose your exact seats, and hold them while you check out.
+      </p>
+    </div>
+    @if (state().kind === 'ready' && filterable()) {
+      <div class="segmented" role="group" aria-label="Filter events">
+        @for (f of filters; track f.value) {
+          <button
+            type="button"
+            [attr.aria-pressed]="filter() === f.value"
+            (click)="filter.set(f.value)"
+          >
+            {{ f.label }}
+          </button>
+        }
+      </div>
+    }
+  </header>
+
+  @switch (state().kind) {
+    @case ('loading') {
+      <p class="visually-hidden" role="status">Loading events…</p>
+      <ul class="event-grid" aria-hidden="true">
+        @for (n of skeletons; track n) {
+          <li class="card">
+            <div class="card__body stack">
+              <span class="skeleton skeleton--line skeleton--short"></span>
+              <span class="skeleton skeleton--title"></span>
+              <span class="skeleton skeleton--line"></span>
+              <span class="skeleton skeleton--line skeleton--medium"></span>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+    @case ('error') {
+      @if (error(); as err) {
+        <app-error-state
+          heading="We could not load the events"
+          [message]="err.message"
+          [retryable]="err.retryable"
+          (retry)="load()"
+        />
+      }
+    }
+    @default {
+      @if (cards().length === 0) {
+        <app-empty-state
+          heading="No events available"
+          [message]="
+            filter() === 'all'
+              ? 'No events are published right now. Check back soon.'
+              : 'No events match this filter.'
+          "
+        >
+          @if (filter() !== 'all') {
+            <button type="button" class="btn btn--secondary" (click)="filter.set('all')">
+              Show all events
+            </button>
+          }
+        </app-empty-state>
+      } @else {
+        <ul class="event-grid">
+          @for (card of cards(); track card.event.id) {
+            <li class="card card--interactive event-card">
+              <a
+                class="event-card__link"
+                [routerLink]="['/events', card.event.id]"
+                [attr.aria-describedby]="'ev-' + card.event.id"
+              >
+                <span class="visually-hidden">{{ card.event.name }}</span>
+              </a>
+              <div class="card__body stack">
+                <div class="event-card__top">
+                  @if (card.tile; as tile) {
+                    <span class="date-tile" aria-hidden="true">
+                      <span class="date-tile__month">{{ tile.month }}</span>
+                      <span class="date-tile__day">{{ tile.day }}</span>
+                    </span>
+                  }
+                  <div class="stack stack--tight">
+                    <app-status-badge kind="event" [value]="card.event.status" />
+                    @if (card.when) {
+                      <p class="subtle">
+                        <time [attr.datetime]="card.event.scheduledStartUtc">{{ card.when }}</time>
+                      </p>
+                    }
+                  </div>
+                </div>
+                <h2 [id]="'ev-' + card.event.id">{{ card.event.name }}</h2>
+                <p class="muted event-card__desc">{{ card.event.description }}</p>
+                <div class="event-card__foot">
+                  @if (card.price) {
+                    <span class="price">{{ card.price }}</span>
+                  } @else {
+                    <span class="subtle">Pricing not announced</span>
+                  }
+                  <span class="event-card__cta" aria-hidden="true">
+                    {{ card.event.status === 'OnSale' ? 'Choose seats →' : 'View details →' }}
+                  </span>
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    }
+  }
+</div>

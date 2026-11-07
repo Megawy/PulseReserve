@@ -75,10 +75,10 @@ public sealed class Event : AggregateRoot<EventId>
             return Result.Failure(new Error("Event.EmptyLayoutId", "Seating layout identifier cannot be empty."));
 
         if (Status == EventStatus.OnSale)
-            return Result.Failure(new Error("Event.CannotModifyOnSaleLayout", "Cannot change seating layout once the event is OnSale."));
+            return Result.Failure(Error.Conflict("Event.CannotModifyOnSaleLayout", "Cannot change seating layout once the event is OnSale."));
 
         if (Status is EventStatus.Closed or EventStatus.Cancelled)
-            return Result.Failure(new Error("Event.TerminalStatus", $"Cannot assign seating layout to an event in '{Status}' state."));
+            return Result.Failure(Error.Conflict("Event.TerminalStatus", $"Cannot assign seating layout to an event in '{Status}' state."));
 
         SeatingLayoutId = layoutId;
         return Result.Success();
@@ -87,7 +87,12 @@ public sealed class Event : AggregateRoot<EventId>
     public Result Publish(DateTime utcNow)
     {
         if (Status is EventStatus.Cancelled or EventStatus.Closed)
-            return Result.Failure(new Error("Event.TerminalStatus", $"Cannot publish an event in '{Status}' state."));
+            return Result.Failure(Error.Conflict("Event.TerminalStatus", $"Cannot publish an event in '{Status}' state."));
+
+        // Publication is a one-way transition out of Draft. Republishing a Published or OnSale event
+        // would regress its sale state and allow StartSale to run again.
+        if (Status != EventStatus.Draft)
+            return Result.Failure(Error.Conflict("Event.AlreadyPublished", $"Only Draft events can be published; event is in '{Status}' state."));
 
         if (!SeatingLayoutId.HasValue || SeatingLayoutId.Value == Contracts.SeatingLayoutId.Empty)
             return Result.Failure(new Error("Event.NoSeatingLayout", "Event cannot be published without a linked seating layout."));
@@ -108,7 +113,7 @@ public sealed class Event : AggregateRoot<EventId>
     public Result StartSale(DateTime utcNow)
     {
         if (Status != EventStatus.Published)
-            return Result.Failure(new Error("Event.NotPublished", "Event must be in Published state before transitioning to OnSale."));
+            return Result.Failure(Error.Conflict("Event.NotPublished", "Event must be in Published state before transitioning to OnSale."));
 
         Status = EventStatus.OnSale;
         OnSaleAtUtc = utcNow;
@@ -120,7 +125,7 @@ public sealed class Event : AggregateRoot<EventId>
     public Result Close(DateTime utcNow)
     {
         if (Status != EventStatus.OnSale)
-            return Result.Failure(new Error("Event.NotOnSale", "Only active OnSale events can be closed."));
+            return Result.Failure(Error.Conflict("Event.NotOnSale", "Only active OnSale events can be closed."));
 
         Status = EventStatus.Closed;
         return Result.Success();
@@ -129,7 +134,7 @@ public sealed class Event : AggregateRoot<EventId>
     public Result Cancel(string reason, DateTime utcNow)
     {
         if (Status is EventStatus.Cancelled or EventStatus.Closed)
-            return Result.Failure(new Error("Event.AlreadyFinished", $"Event is already in '{Status}' state and cannot be cancelled."));
+            return Result.Failure(Error.Conflict("Event.AlreadyFinished", $"Event is already in '{Status}' state and cannot be cancelled."));
 
         if (string.IsNullOrWhiteSpace(reason))
             return Result.Failure(new Error("Event.EmptyCancellationReason", "Cancellation reason cannot be empty."));
@@ -147,10 +152,10 @@ public sealed class Event : AggregateRoot<EventId>
     public Result SetPrice(PriceTierId priceTierId, Money price)
     {
         if (Status is EventStatus.Closed or EventStatus.Cancelled)
-            return Result.Failure(new Error("Event.TerminalStatus", $"Cannot modify pricing for an event in '{Status}' state."));
+            return Result.Failure(Error.Conflict("Event.TerminalStatus", $"Cannot modify pricing for an event in '{Status}' state."));
 
         if (Status == EventStatus.OnSale)
-            return Result.Failure(new Error("Event.CannotModifyOnSalePricing", "Cannot modify pricing once the event is OnSale."));
+            return Result.Failure(Error.Conflict("Event.CannotModifyOnSalePricing", "Cannot modify pricing once the event is OnSale."));
 
         var priceResult = EventPrice.Create(priceTierId, price);
         if (priceResult.IsFailure)

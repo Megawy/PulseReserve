@@ -5,6 +5,8 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,5 +17,6 @@
     <ProjectReference Include="..\..\src\Modules\Reservation\PulseReserve.Modules.Reservation\PulseReserve.Modules.Reservation.csproj" />
     <ProjectReference Include="..\..\src\Modules\Payments\PulseReserve.Modules.Payments\PulseReserve.Modules.Payments.csproj" />
     <ProjectReference Include="..\..\src\Modules\Notifications\PulseReserve.Modules.Notifications\PulseReserve.Modules.Notifications.csproj" />
+    <ProjectReference Include="..\..\src\PulseReserve.AppHost\PulseReserve.AppHost.csproj" />
   </ItemGroup>
 </Project>

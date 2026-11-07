@@ -48,7 +48,7 @@ public sealed class SeatingLayout : AggregateRoot<SeatingLayoutId>
     public Result AddPriceTier(PriceTier priceTier)
     {
         if (IsLocked)
-            return Result.Failure(new Error("SeatingLayout.Locked", "Cannot modify a locked seating layout."));
+            return Result.Failure(Error.Conflict("SeatingLayout.Locked", "Cannot modify a locked seating layout."));
 
         if (priceTier is null)
             return Result.Failure(new Error("SeatingLayout.NullPriceTier", "Price tier cannot be null."));
@@ -63,7 +63,7 @@ public sealed class SeatingLayout : AggregateRoot<SeatingLayoutId>
     public Result AddSection(Section section)
     {
         if (IsLocked)
-            return Result.Failure(new Error("SeatingLayout.Locked", "Cannot modify a locked seating layout."));
+            return Result.Failure(Error.Conflict("SeatingLayout.Locked", "Cannot modify a locked seating layout."));
 
         if (section is null)
             return Result.Failure(new Error("SeatingLayout.NullSection", "Section cannot be null."));
@@ -81,7 +81,7 @@ public sealed class SeatingLayout : AggregateRoot<SeatingLayoutId>
     public Result AddRow(Row row)
     {
         if (IsLocked)
-            return Result.Failure(new Error("SeatingLayout.Locked", "Cannot modify a locked seating layout."));
+            return Result.Failure(Error.Conflict("SeatingLayout.Locked", "Cannot modify a locked seating layout."));
 
         if (row is null)
             return Result.Failure(new Error("SeatingLayout.NullRow", "Row cannot be null."));
@@ -103,7 +103,7 @@ public sealed class SeatingLayout : AggregateRoot<SeatingLayoutId>
     public Result AddSeat(Seat seat)
     {
         if (IsLocked)
-            return Result.Failure(new Error("SeatingLayout.Locked", "Cannot modify a locked seating layout."));
+            return Result.Failure(Error.Conflict("SeatingLayout.Locked", "Cannot modify a locked seating layout."));
 
         if (seat is null)
             return Result.Failure(new Error("SeatingLayout.NullSeat", "Seat cannot be null."));

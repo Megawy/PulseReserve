@@ -1,0 +1,175 @@
+<section class="stack" aria-labelledby="checkout-heading">
+  <h3 id="checkout-heading">Checkout</h3>
+
+  @if (showSimulatorBanner()) {
+    <app-alert class="sim-banner" tone="info" heading="Payment simulator">
+      Development/test only: no real money moves and no card details are collected.
+    </app-alert>
+  }
+
+  <div aria-live="polite">
+    @if (flow.notice(); as n) {
+      <app-alert [tone]="n.tone">{{ n.text }}</app-alert>
+    }
+  </div>
+
+  @if (order(); as o) {
+    <app-order-summary [order]="o" [seatNames]="seatNames()" [remaining]="remaining()" />
+
+    @if (o.status === 'Paid') {
+      <section class="stack" aria-labelledby="tickets-heading">
+        <h4 id="tickets-heading">Your tickets</h4>
+        @if (flow.tickets().length > 0) {
+          <app-ticket-list [tickets]="flow.tickets()" [seatNames]="seatNames()" />
+        } @else {
+          <p class="muted" role="status">Your tickets are being prepared.</p>
+          <button
+            type="button"
+            class="btn btn--secondary btn--sm tickets__refresh"
+            [class.is-loading]="flow.ticketsLoading()"
+            [disabled]="flow.ticketsLoading()"
+            (click)="flow.loadTickets()"
+          >
+            Check again
+          </button>
+        }
+      </section>
+    }
+
+    @if (o.status === 'PendingPayment') {
+      <div class="stack actions">
+        @if (!flow.paymentInFlight()) {
+          @switch (flow.optionsStatus()) {
+            @case ('loading') {
+              <p class="muted" role="status">Checking payment methods…</p>
+            }
+            @case ('error') {
+              <app-alert tone="error" heading="Payment methods unavailable">
+                We could not load the payment methods.
+                <button type="button" class="link-button" (click)="flow.loadOptions()">
+                  Try again
+                </button>
+              </app-alert>
+            }
+            @case ('ready') {
+              @if (flow.heldForReview()) {
+                <app-alert tone="warning" heading="This order can no longer be paid">
+                  An earlier payment for this order needs attention from our team, so no payment
+                  method is offered for it. You have not been charged again. Cancel this order to
+                  release your seats, then start a new one.
+                </app-alert>
+              } @else if (flow.ineligibleReason() !== null) {
+                <app-alert tone="warning" heading="This order can no longer be paid">
+                  This order is not awaiting payment any more, so no payment method is offered.
+                </app-alert>
+              } @else if (flow.noProvider()) {
+                <app-alert tone="warning" heading="Payments are unavailable">
+                  No payment method is available for this order right now. Nothing has been charged,
+                  and your seats stay held until the payment window ends.
+                </app-alert>
+              } @else {
+                <fieldset class="methods" [disabled]="flow.isBusy()">
+                  <legend>Payment method</legend>
+                  @for (p of flow.providers(); track p.provider) {
+                    <label
+                      class="method"
+                      [class.is-selected]="flow.selectedProvider() === p.provider"
+                    >
+                      <input
+                        type="radio"
+                        name="payment-method"
+                        [value]="p.provider"
+                        [checked]="flow.selectedProvider() === p.provider"
+                        (change)="flow.selectProvider(p.provider)"
+                      />
+                      <span class="method__name">{{ p.displayName }}</span>
+                      @if (p.isSimulated) {
+                        <span class="badge badge--warning">Simulated</span>
+                      }
+                    </label>
+                  }
+                </fieldset>
+                @if (flow.mustChoose() && !flow.selectedOption()) {
+                  <p class="subtle" role="status">Choose a payment method to continue.</p>
+                }
+                <button
+                  type="button"
+                  class="btn btn--primary btn--block"
+                  [class.is-loading]="flow.busy() === 'paying'"
+                  [disabled]="!flow.canPay()"
+                  [attr.aria-busy]="flow.busy() === 'paying'"
+                  (click)="flow.startPayment()"
+                >
+                  {{ payLabel() }}
+                </button>
+              }
+            }
+          }
+        }
+        @if (flow.awaitingProvider()) {
+          <app-alert tone="info" heading="Payment in progress">
+            You started a payment with {{ flow.attempt()?.provider }}. Complete it on their page.
+            This order is confirmed only once the provider confirms the payment, not when you return
+            here.
+          </app-alert>
+          <button
+            type="button"
+            class="btn btn--primary btn--block"
+            [disabled]="flow.isBusy()"
+            (click)="flow.continueToPayment()"
+          >
+            Continue to payment
+          </button>
+          <button
+            type="button"
+            class="btn btn--secondary btn--block"
+            [class.is-loading]="flow.busy() === 'loading'"
+            [disabled]="flow.isBusy()"
+            (click)="flow.refresh()"
+          >
+            Check payment status
+          </button>
+        }
+        @if (flow.simulatorReady()) {
+          <fieldset class="sim-controls" [disabled]="flow.isBusy()">
+            <legend>Simulate the provider's answer</legend>
+            <button type="button" class="btn btn--primary" (click)="flow.simulate('succeed')">
+              Simulate successful payment
+            </button>
+            <button type="button" class="btn btn--secondary" (click)="flow.simulate('fail')">
+              Simulate failed payment
+            </button>
+          </fieldset>
+        }
+        <button
+          type="button"
+          class="btn btn--danger btn--block"
+          [class.is-loading]="flow.busy() === 'cancelling'"
+          [disabled]="!flow.canCancel()"
+          (click)="flow.cancel()"
+        >
+          Cancel order
+        </button>
+        @if (flow.awaitingProvider()) {
+          <p class="subtle">
+            Already paid? Wait for the confirmation before cancelling: a payment that arrives after
+            cancelling has to be refunded.
+          </p>
+        }
+      </div>
+    }
+  } @else if (flow.loaded()) {
+    <p class="muted">Your seats are held, but checkout has not been started.</p>
+    <button
+      type="button"
+      class="btn btn--primary btn--block"
+      [class.is-loading]="flow.busy() === 'creating'"
+      [disabled]="flow.isBusy()"
+      (click)="flow.createOrder(reservationId())"
+    >
+      Continue to checkout
+    </button>
+  } @else {
+    <p class="muted" role="status">Loading your order…</p>
+  }
+</section>

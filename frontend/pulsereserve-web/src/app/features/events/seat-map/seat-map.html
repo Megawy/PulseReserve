@@ -1,0 +1,42 @@
+<ul class="legend" aria-label="Seat status legend">
+  <li><span class="swatch available" aria-hidden="true"></span> Available</li>
+  <li><span class="swatch selected" aria-hidden="true">✓</span> Selected</li>
+  <li><span class="swatch mine" aria-hidden="true">★</span> Held by you</li>
+  <li><span class="swatch held" aria-hidden="true">◩</span> Held by someone else</li>
+  <li><span class="swatch unavailable" aria-hidden="true">✕</span> Unavailable</li>
+</ul>
+
+<p class="stage" aria-hidden="true">Stage</p>
+
+<div class="map" role="group" aria-label="Seat map">
+  @for (section of sections(); track section.id) {
+    <section class="section" [attr.aria-label]="'Section ' + section.name">
+      <h3>Section {{ section.name }}</h3>
+      @for (row of section.rows; track row.id) {
+        <div class="row" role="group" [attr.aria-label]="'Row ' + row.label">
+          <span class="row-label" aria-hidden="true">{{ row.label }}</span>
+          @for (seat of row.seats; track seat.id) {
+            <button
+              type="button"
+              class="seat"
+              [class]="'seat ' + seat.state"
+              [attr.data-seat-id]="seat.id"
+              [attr.aria-label]="seat.description"
+              [attr.aria-pressed]="seat.actionable ? seat.state === 'selected' : null"
+              [attr.aria-disabled]="seat.actionable && !locked() ? null : 'true'"
+              [attr.tabindex]="tabbable(seat.id) ? 0 : -1"
+              (focus)="onFocus(seat.id)"
+              (click)="onActivate(seat)"
+              (keydown)="onKeydown($event, seat.id)"
+            >
+              <span aria-hidden="true" class="seat-label">{{ seat.label }}</span>
+              <span aria-hidden="true" class="seat-icon">{{ icon[seat.state] }}</span>
+            </button>
+          }
+        </div>
+      }
+    </section>
+  } @empty {
+    <p>This seating layout has no sections.</p>
+  }
+</div>
